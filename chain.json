@@ -7,5 +7,18 @@
     "network_type": "devnet",
     "bech32_prefix": "cascadia",
     "daemon_name": "cascadiad",
-    "node_home": "$HOME/.cascadia"
+    "node_home": "$HOME/.cascadia",
+    "codebase": {
+        "git_repo": "https://github.com/CascadiaFoundation/cascadia-chain.git",
+        "recommended_version": "v0.1.1",
+        "compatible_versions": [
+          "v0.1.1"
+        ],
+        "binaries": {
+          "linux/amd64": "https://github.com/CascadiaFoundation/cascadia-chain/releases/download/v0.1.1/cascadiad-v0.1.1-linux-amd64"
+        },
+        "genesis": {
+          "genesis_url": ""
+        }
+      }
 }
