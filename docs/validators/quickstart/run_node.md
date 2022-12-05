@@ -92,7 +92,7 @@ For more information about the Keyring and its backend options, click [here](./.
 - `$TRACESTORE` is the output file which contains KVStore tracing (eg. `store.txt`)
 
 ```bash
-cascadiad start --evm.tracer $TRACER --tracestore $TRACESTORE --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3
+cascadiad start --evm.tracer $TRACER --tracestore $TRACESTORE --pruning=nothing $TRACE --log_level $LOGLEVEL --minimum-gas-prices=0.0001uCC --json-rpc.api eth,txpool,personal,net,debug,web3
 ```
 
 ## Clearing data from chain
