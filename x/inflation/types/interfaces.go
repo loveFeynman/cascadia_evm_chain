@@ -3,7 +3,7 @@ package types // noalias
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	feedisttypes "github.com/evmos/evmos/v9/x/feedist/types"
+	rewardtypes "github.com/evmos/evmos/v9/x/reward/types"
 )
 
 // AccountKeeper defines the contract required for account APIs.
@@ -40,6 +40,6 @@ type StakingKeeper interface {
 	TotalBondedTokens(ctx sdk.Context) sdk.Int
 }
 
-type FeedistKeeper interface {
-	GetFeedist(ctx sdk.Context, index string) (val feedisttypes.Feedist, found bool)
+type RewardKeeper interface {
+	GetReward(ctx sdk.Context, index string) (val rewardtypes.Reward, found bool)
 }
