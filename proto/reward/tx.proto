@@ -1,0 +1,45 @@
+syntax = "proto3";
+package evmos.v9.reward;
+
+// this line is used by starport scaffolding # proto/tx/import
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v9/x/reward/types";
+
+// Msg defines the Msg service.
+service Msg {
+      rpc RegisterVeContractReward(MsgRegisterVeContractReward) returns (MsgRegisterRewardResponse);
+      rpc RegisterNProtocolReward(MsgRegisterNProtocolReward) returns (MsgRegisterRewardResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgRegisterVeContractReward {
+  string creator = 1;
+  string contract = 2;
+  string gas_fee_shares = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string block_reward_shares = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];  
+}
+
+message MsgRegisterNProtocolReward {
+  string creator = 1;
+  string contract = 2;
+  string gas_fee_shares = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string block_reward_shares = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];  
+}
+
+message MsgRegisterRewardResponse {
+}
+
+// this line is used by starport scaffolding # proto/tx/message

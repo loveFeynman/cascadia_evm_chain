@@ -1,0 +1,20 @@
+syntax = "proto3";
+package evmos.v9.reward;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v9/x/reward/types";
+
+message Reward {
+  string index = 1; 
+  string contract = 2; 
+  string gas_fee_shares = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string block_reward_shares = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];  
+}
+

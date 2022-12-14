@@ -21,5 +21,12 @@ instructions. Once the dependencies are installed, run:
 make install
 ```
 
+## Build binary
+
+Before running `make install` in the repo, you need open a file `go/pkg/mod/github.com/cosmos/cosmos-sdk@v0.45.9/types/coin.go` and modify the line 764 as follows. reDnmString = `[a-zA-Z][a-zA-Z0-9/-]{2,127}` -> reDnmString = `[a-zA-Z][a-zA-Z0-9/-]{1,127}`
+
+
+
+
 
 

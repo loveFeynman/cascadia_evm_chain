@@ -144,9 +144,9 @@ import (
 	vestingkeeper "github.com/evmos/evmos/v9/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v9/x/vesting/types"
 
-	feedistmodule "github.com/evmos/evmos/v9/x/feedist"
-	feedistmodulekeeper "github.com/evmos/evmos/v9/x/feedist/keeper"
-	feedistmoduletypes "github.com/evmos/evmos/v9/x/feedist/types"
+	rewardmodule "github.com/evmos/evmos/v9/x/reward"
+	rewardmodulekeeper "github.com/evmos/evmos/v9/x/reward/keeper"
+	rewardmoduletypes "github.com/evmos/evmos/v9/x/reward/types"
 )
 
 func init() {
@@ -207,7 +207,7 @@ var (
 		claims.AppModuleBasic{},
 		recovery.AppModuleBasic{},
 		revenue.AppModuleBasic{},
-		feedistmodule.AppModuleBasic{},
+		rewardmodule.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -223,7 +223,7 @@ var (
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		claimstypes.ModuleName:         nil,
 		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
-		feedistmoduletypes.ModuleName:  {authtypes.Minter, authtypes.Burner, authtypes.Staking},
+		rewardmoduletypes.ModuleName:   {authtypes.Minter, authtypes.Burner, authtypes.Staking},
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -292,7 +292,7 @@ type Evmos struct {
 	RecoveryKeeper   *recoverykeeper.Keeper
 	RevenueKeeper    revenuekeeper.Keeper
 
-	FeedistKeeper feedistmodulekeeper.Keeper
+	rewardKeeper rewardmodulekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -350,7 +350,7 @@ func NewEvmos(
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 		revenuetypes.StoreKey,
-		feedistmoduletypes.StoreKey,
+		rewardmoduletypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -441,11 +441,11 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, govRouter,
 	)
 
-	app.FeedistKeeper = *feedistmodulekeeper.NewKeeper(
+	app.rewardKeeper = *rewardmodulekeeper.NewKeeper(
 		appCodec,
-		keys[feedistmoduletypes.StoreKey],
-		keys[feedistmoduletypes.MemStoreKey],
-		app.GetSubspace(feedistmoduletypes.ModuleName),
+		keys[rewardmoduletypes.StoreKey],
+		keys[rewardmoduletypes.MemStoreKey],
+		app.GetSubspace(rewardmoduletypes.ModuleName),
 
 		app.BankKeeper,
 		app.EvmKeeper,
@@ -454,7 +454,7 @@ func NewEvmos(
 	// Evmos Keeper
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		keys[inflationtypes.StoreKey], appCodec, app.GetSubspace(inflationtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper, app.FeedistKeeper,
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper, app.rewardKeeper,
 		authtypes.FeeCollectorName,
 	)
 
@@ -514,7 +514,7 @@ func NewEvmos(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
 			app.IncentivesKeeper.Hooks(),
-			app.FeedistKeeper.Hooks(),
+			app.rewardKeeper.Hooks(),
 			app.RevenueKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
@@ -618,7 +618,7 @@ func NewEvmos(
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		recovery.NewAppModule(*app.RecoveryKeeper),
 		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper),
-		feedistmodule.NewAppModule(appCodec, app.FeedistKeeper, app.AccountKeeper, app.BankKeeper),
+		rewardmodule.NewAppModule(appCodec, app.rewardKeeper, app.AccountKeeper, app.BankKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -656,7 +656,7 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
-		feedistmoduletypes.ModuleName,
+		rewardmoduletypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -690,7 +690,7 @@ func NewEvmos(
 		incentivestypes.ModuleName,
 		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
-		feedistmoduletypes.ModuleName,
+		rewardmoduletypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -733,7 +733,7 @@ func NewEvmos(
 		revenuetypes.ModuleName,
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
-		feedistmoduletypes.ModuleName,
+		rewardmoduletypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -1052,7 +1052,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
 	paramsKeeper.Subspace(revenuetypes.ModuleName)
-	paramsKeeper.Subspace(feedistmoduletypes.ModuleName)
+	paramsKeeper.Subspace(rewardmoduletypes.ModuleName)
 
 	return paramsKeeper
 }
