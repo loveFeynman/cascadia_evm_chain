@@ -17,12 +17,12 @@ func (k Keeper) MintAndAllocateInflation(
 	ctx sdk.Context,
 	coin sdk.Coin,
 ) (
-	staking, incentives, communityPool sdk.Coins,
+	staking, veContractReward, nProtocolReward, communityPool sdk.Coins,
 	err error,
 ) {
 	// Mint coins for distribution
 	if err := k.MintCoins(ctx, coin); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
 	// Allocate minted coins according to allocation proportions (staking, usage
@@ -52,7 +52,7 @@ func (k Keeper) AllocateExponentialInflation(
 	ctx sdk.Context,
 	mintedCoin sdk.Coin,
 ) (
-	staking, incentives, communityPool sdk.Coins,
+	staking, veContractReward, nProtocolReward, communityPool sdk.Coins,
 	err error,
 ) {
 	params := k.GetParams(ctx)
@@ -67,27 +67,49 @@ func (k Keeper) AllocateExponentialInflation(
 		staking,
 	)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
-	// Allocate usage incentives to incentives module account
-	incentives = sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.UsageIncentives))
-	feedist, found := k.feedistKeeper.GetFeedist(ctx, "feedist")
-
+	// Allocate block rewards to ve-contract
+	veContract, found := k.rewardKeeper.GetReward(ctx, "vecontract")
 	if found {
-		address, err := sdk.AccAddressFromHex(feedist.Contract[2:])
+		veContractReward := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, veContract.BlockRewardShares))
+
+		address, err := sdk.AccAddressFromHex(veContract.Contract[2:])
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, nil, err
 		}
 
 		err = k.bankKeeper.SendCoinsFromModuleToAccount(
 			ctx,
 			types.ModuleName,
 			address,
-			incentives,
+			veContractReward,
 		)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, nil, nil, err
+		}
+	}
+
+	// Allocate block rewards to nProtocols
+	nProtocol, found := k.rewardKeeper.GetReward(ctx, "nprotocol")
+
+	if found {
+		nProtocolReward := sdk.NewCoins(k.GetProportions(ctx, mintedCoin, nProtocol.BlockRewardShares))
+
+		address, err := sdk.AccAddressFromHex(nProtocol.Contract[2:])
+		if err != nil {
+			return nil, nil, nil, nil, err
+		}
+
+		err = k.bankKeeper.SendCoinsFromModuleToAccount(
+			ctx,
+			types.ModuleName,
+			address,
+			nProtocolReward,
+		)
+		if err != nil {
+			return nil, nil, nil, nil, err
 		}
 	}
 
@@ -102,10 +124,10 @@ func (k Keeper) AllocateExponentialInflation(
 		moduleAddr,
 	)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
-	return staking, incentives, communityPool, nil
+	return staking, veContractReward, nProtocolReward, communityPool, nil
 }
 
 // GetAllocationProportion calculates the proportion of coins that is to be
